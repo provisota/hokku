@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Хокку · Прототипы сайта</title>
+<style>
+  @font-face { font-family: Neucha; src: url('fonts/neucha-latin-400-normal.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: Neucha; src: url('fonts/neucha-cyrillic-400-normal.woff2') format('woff2'); font-display: swap; unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  * { box-sizing: border-box; }
+  :root { font-family: 'Instrument Sans', Arial, sans-serif; color-scheme: dark; }
+  body { margin: 0; background: #181916; color: #ede7d9; }
+  button, a { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; opacity: .42; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+  h1, h2, p, blockquote { margin: 0; }
+  [hidden] { display: none !important; }
+  .switcher { min-height: 58px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem max(4vw, 1rem); background: #1b1c19; border-bottom: 1px solid #444238; }
+  .switcher p { color: #c0b8a7; font-size: .8rem; }
+  .switcher nav { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .switcher a { text-decoration: none; color: #ddd4c2; border: 1px solid transparent; padding: .45rem .7rem; border-radius: 3px; font-size: .82rem; }
+  .switcher [aria-current] { border-color: #8a816c; color: #fff4db; }
+  .shell { min-height: calc(100svh - 58px); padding: 0 max(4vw, 1rem) 3rem; }
+  .masthead { width: min(100%, 1140px); margin: auto; min-height: 86px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .brand { text-decoration: none; font-family: 'Old Standard TT', Georgia, serif; font-size: 2rem; }
+  .albums { display: flex; flex-wrap: wrap; gap: .35rem 1rem; }
+  .albums a { text-decoration: none; padding: .4rem 0; border-bottom: 1px solid transparent; font-size: .87rem; }
+  .albums a:hover, .albums [aria-current] { border-color: currentColor; }
+  .reader { width: min(100%, 1140px); margin: auto; }
+  .section-label { font-size: .84rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 400; }
+  .verse { white-space: pre-wrap; overflow-wrap: anywhere; font-family: 'Old Standard TT', Georgia, serif; line-height: 1.36; }
+  .meta { margin-top: 1.25rem; font-size: .8rem; opacity: .82; white-space: pre-line; }
+  .placeholder { display: grid; place-content: center; justify-items: center; gap: .8rem; text-align: center; }
+  .seal { display: grid; place-content: center; width: 46px; aspect-ratio: 1; border: 1px solid currentColor; font: 1.7rem 'Yu Mincho', 'Noto Serif CJK JP', serif; }
+  .placeholder p { font-size: .73rem; }
+  .paging { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; margin-top: 1.2rem; }
+  .paging button, .cover button { color: inherit; background: transparent; border: 1px solid currentColor; padding: .6rem .85rem; }
+  .paging button:first-child { justify-self: start; }
+  .paging button:last-child { justify-self: end; }
+  .paging p { font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .overview h1, .cover h1 { font: 400 clamp(2.65rem, 8vw, 6.25rem)/1 'Old Standard TT', Georgia, serif; }
+  .overview { padding: clamp(2rem, 6vw, 5rem); }
+  .overview ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; list-style: none; padding: 0; margin: 2rem 0 0; }
+  .overview li a { display: block; padding: 1rem .8rem; text-decoration: none; border: 1px solid currentColor; }
+  .cover { position: relative; isolation: isolate; overflow: hidden; display: grid; justify-items: center; align-content: center; gap: 1.5rem; min-height: 500px; text-align: center; }
+  .cover::before, .cover::after { position: absolute; z-index: -1; content: ''; border: 1px solid currentColor; opacity: .28; pointer-events: none; }
+  .cover::before { inset: 1rem; }
+  .cover::after { inset: 1.3rem; }
+  .cover button:hover, .paging button:not(:disabled):hover { text-decoration: underline; }
+
+  /* Книга */
+  .book { --book-height: clamp(410px, 73svh, 660px); display: grid; align-items: center; min-height: 100svh; padding-block: 1.5rem; background: radial-gradient(ellipse at 52% 30%, #614630 0%, #282019 45%, #131210 84%); }
+  .book .reader:focus { outline: none; }
+  .book .spread { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: var(--book-height); border-radius: 18px; overflow: hidden; background: #e8dcc7; color: #372c21; box-shadow: 0 18px 40px #110c09b0, 0 7px 0 -3px #9b7c58, 0 12px 0 -5px #70563e; }
+  .book .text-page { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; padding: clamp(1.5rem, 5vw, 5rem); position: relative; background: linear-gradient(90deg, #d7c6aa 0, transparent 4%, transparent 94%, #b9a183 100%); }
+  .book .section-label { position: absolute; inset: 2rem auto auto clamp(1.5rem, 5vw, 5rem); color: #5d4835; }
+  .book .verse { font-family: Neucha, 'Segoe Print', cursive; font-size: clamp(1.65rem, 3.2vw, 3rem); overflow-x: auto; white-space: normal; }
+  .book .verse-line { display: block; width: max-content; white-space: pre; }
+  .book .art-page { padding: clamp(1.5rem, 4vw, 3.75rem); display: grid; background: linear-gradient(90deg, #b79f7d 0%, transparent 7%, transparent 96%, #d9c8aa 100%); }
+  .book .placeholder { min-height: 235px; color: #75563e; border: 1px solid #a99478; outline: 1px solid #c4b298; outline-offset: 5px; background: radial-gradient(ellipse, #e8dcc7, #deceb1); }
+  .book .seal { color: #994f37; transform: rotate(-6deg); }
+  .book .cover { width: min(100%, 560px); min-height: var(--book-height); margin: auto; padding: 3rem 2.6rem 3rem 3.8rem; border: 1px solid #eed4ae60; border-radius: 7px 16px 16px 7px; background-color: #713b32; background-image: linear-gradient(90deg, #130b0b99, #0e050531 18px, #e5c2a155 24px, #11060565 28px, transparent 34px), repeating-linear-gradient(115deg, #16090716 0 1px, transparent 1px 3px), radial-gradient(ellipse at 40% 20%, #ffc18b22, #17090865); box-shadow: 0 12px 34px #130a07aa, 5px 6px 0 -2px #c8aa83, 9px 9px 0 -4px #482719; }
+  .book .cover::before { inset: 1.1rem 1rem 1.1rem 2.8rem; }
+  .book .cover::after { inset: 1.35rem 1.25rem 1.35rem 3.05rem; }
+  .book .cover h1, .book .spread-title { font-family: Neucha, 'Segoe Print', cursive; }
+  .book .spread-title { font-size: clamp(2.25rem, 5vw, 4.7rem); font-weight: 400; }
+  .book .album-title-page { text-align: center; }
+  .book .overview { padding: 0; }
+  .book .overview .art-page { display: block; padding: clamp(1.5rem, 5vw, 5rem); align-content: center; }
+  .book .overview ul { display: block; margin: 0; border-top: 1px solid #a99478; }
+  .book .overview li a { padding: .65rem .2rem; border: 0; border-bottom: 1px solid #a99478; font-family: Neucha, 'Segoe Print', cursive; font-size: clamp(1.35rem, 2.6vw, 2rem); }
+  .book .overview li a:hover { color: #994f37; text-decoration: underline; }
+  .book-controls { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 1.15rem; }
+  .book-controls .paging { grid-column: 2; margin: 0; gap: .65rem; }
+  .book-controls .paging button { min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%; font-size: 1.3rem; }
+  .book-controls .paging button:not(:disabled):hover { background: #ffffff15; text-decoration: none; }
+  .book-start { justify-self: end; min-height: 44px; padding: .45rem .65rem; border: 0; background: transparent; color: inherit; font-size: .85rem; }
+  .book-start:hover { text-decoration: underline; }
+
+  /* Созерцание */
+  .focus { background: radial-gradient(ellipse at 50% 45%, #242c27, #101512 70%); color: #e5e9dd; }
+  .focus .masthead { border-bottom: 1px solid #586054; }
+  .focus .spread { min-height: clamp(390px, 63vh, 610px); display: grid; align-content: center; justify-items: center; position: relative; padding: 4.5rem 1rem 1.5rem; }
+  .focus .text-page { text-align: center; }
+  .focus .section-label { color: #b7c8ae; margin-bottom: 2rem; }
+  .focus .verse { font-size: clamp(1.65rem, 4.3vw, 4.1rem); }
+  .focus .art-page { margin-top: 2.5rem; color: #b7c8ae; }
+  .focus .seal { border: 0; border-radius: 50%; box-shadow: 0 0 0 1px #83917e; width: 39px; font-size: 1.4rem; }
+  .focus .paging { border-top: 1px solid #586054; padding-top: 1rem; }
+  .focus .paging button { border-color: transparent; }
+  .focus .overview { text-align: center; }
+
+  /* Лента */
+  .journal { color-scheme: light; color: #272825; background: #f7f7f8; display: grid; grid-template-columns: minmax(150px, 205px) minmax(0, 930px); justify-content: center; gap: 5vw; }
+  .journal .masthead { width: 100%; min-height: 0; margin: 0; padding-top: 3rem; align-self: start; display: grid; justify-content: stretch; gap: 2rem; }
+  .journal .brand { font-family: 'Instrument Sans', Arial, sans-serif; font-size: 1.65rem; font-weight: 700; }
+  .journal .albums { display: grid; gap: 0; border-top: 1px solid #c9c9cd; }
+  .journal .albums a { padding: .75rem 0; border-bottom: 1px solid #c9c9cd; }
+  .journal .albums [aria-current] { color: #ac1621; font-weight: 700; }
+  .journal .reader { padding-top: 3rem; margin: 0; }
+  .journal .album-title { font: 700 clamp(2.9rem, 8vw, 6.25rem)/.98 'Instrument Sans', Arial, sans-serif; letter-spacing: -.06em; margin: 0 0 1.75rem; }
+  .journal .entry { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(120px, 1fr); min-height: 235px; align-items: center; border-top: 1px solid #aeafb3; gap: 1.3rem; padding: 1.5rem 0; }
+  .journal .verse { font-family: 'Instrument Sans', Arial, sans-serif; font-size: clamp(1.25rem, 2.4vw, 2.35rem); font-weight: 500; }
+  .journal .meta { font-variant-numeric: tabular-nums; }
+  .journal .placeholder { align-self: stretch; min-height: 120px; border: 1px solid #c9c9cd; color: #ac1621; }
+  .journal .cover, .journal .overview { border-top: 1px solid #c9c9cd; }
+  .journal .cover h1, .journal .overview h1 { font-family: 'Instrument Sans', Arial, sans-serif; font-weight: 700; letter-spacing: -.06em; }
+
+  @media (max-width: 700px) {
+    .masthead { align-items: flex-start; flex-direction: column; justify-content: center; padding: 1rem 0; }
+    .book .spread { grid-template-columns: 1fr; }
+    .book .text-page { padding-top: 3.75rem; padding-bottom: 1.5rem; background: linear-gradient(0deg, #d7c6aa, transparent 15%); }
+    .book .album-title-page { padding-block: 1.5rem; }
+    .book .section-label { top: 1.5rem; }
+    .book .art-page { padding: 1.25rem; background: linear-gradient(#c4ad8b, transparent 20%); }
+    .book .placeholder { min-height: 145px; }
+    .book .overview .text-page { padding: 2rem 1.5rem; }
+    .focus .spread { min-height: 390px; padding-top: 2.5rem; }
+    .journal { display: block; }
+    .journal .masthead { padding: 1rem 0; gap: .8rem; }
+    .journal .albums { display: flex; gap: 0 .8rem; }
+    .journal .albums a { padding: .55rem 0; }
+    .journal .reader { padding-top: 1rem; }
+  }
+  @media (max-width: 420px) {
+    .book .overview .art-page { padding: .75rem 1.5rem 1rem; }
+    .book .overview li a { padding-block: .35rem; }
+    .book-start { padding-inline: .2rem; font-size: .78rem; }
+    .overview ul { grid-template-columns: 1fr 1fr; }
+    .journal .entry { grid-template-columns: 1fr; }
+    .journal .placeholder { min-height: 100px; }
+  }
+</style>
+<header class="switcher">
+  <p>Прототипы сайта</p>
+  <nav aria-label="Варианты дизайна" id="designs"></nav>
+</header>
+<div class="shell" id="site">
+  <header class="masthead">
+    <a class="brand" id="brand" aria-label="Хокку — оглавление">Хокку</a>
+    <nav class="albums" aria-label="Альбомы" id="albums"></nav>
+  </header>
+  <main class="reader" id="reader" tabindex="-1"></main>
+</div>
+<script>
+  const poems = {
+    snow: ['Снег на полях\nЕщё не растаял,\nДорога зовет.', '12.01.08'],
+    sun: ['Белое солнце,\nЖидкий асфальт и мозги,\nЯ жду Телегула.', '25.06.08'],
+    wind: ['В мой день рожденья\nХолодный ветер\nСорвал лист желтый.', '24.09.11'],
+    rain: ['Первые дожди...\nМоря гладь нарушил\nЧайки полёт.', '07.09.13'],
+    blossom: ['Вишни цветы под полной лунной,\nИ вы едва ли в силах\nБасё воскресить... Или всё же?...', '18.02.13'],
+    cricket: ['Сверчок замолчал,\nАж в ушах зазвенело,\nЛетний вечер в селе.'],
+    moon: ['Новый год, Мангуп,\nИ даже в кружке с чаем\nПолная луна.'],
+    trail: ['Горные тропы\nУ нас под ногами,\nКуда приведут?'],
+    week: ['Я в понедельник\nПриехал, в субботу уехал,\nНеделя прошла.', '(Услышанно.)'],
+  };
+
+  const albums = {
+    chronicle: { name: 'Хроника', color: '#70614d', poems: ['snow', 'sun', 'wind', 'blossom', 'rain', 'cricket', 'moon', 'trail', 'week'] },
+    spring: { name: 'Весна', color: '#7e505a', poems: ['blossom'] },
+    summer: { name: 'Лето', color: '#80602f', poems: ['sun', 'cricket'] },
+    autumn: { name: 'Осень', color: '#84452d', poems: ['wind', 'rain'] },
+    winter: { name: 'Зима', color: '#455862', poems: ['snow', 'moon'] },
+    beauty: { name: 'Красота', color: '#575477', poems: ['trail', 'week'] },
+  };
+  const designs = { book: 'Книга', focus: 'Созерцание', journal: 'Лента' };
+  const bookPages = [
+    ['home', 'cover'],
+    ['contents', 1],
+    ...Object.entries(albums).flatMap(([key, album]) => [
+      [key, 'cover'],
+      ...album.poems.map((_, index) => [key, index + 1]),
+    ]),
+  ].map(([album, page]) => route('book', album, page));
+  const site = document.querySelector('#site');
+  const reader = document.querySelector('#reader');
+  const switcher = document.querySelector('.switcher');
+  const masthead = document.querySelector('.masthead');
+  const brand = document.querySelector('#brand');
+  const albumNav = document.querySelector('#albums');
+  const designNav = document.querySelector('#designs');
+  const verseObserver = new ResizeObserver(() => fitVerse());
+  let pageTurns = {};
+
+  function route(design, album, page) {
+    return `#${design}/${album}/${page}`;
+  }
+
+  function render(focusReader = false) {
+    const [designParam, albumParam, pageParam] = location.hash.slice(1).split('/');
+    const design = Object.hasOwn(designs, designParam) ? designParam : 'book';
+    const albumKey = ['home', 'contents'].includes(albumParam) || Object.hasOwn(albums, albumParam)
+      ? albumParam : design === 'book' ? 'home' : 'winter';
+    const album = albums[albumKey];
+    const page = albumKey === 'home' || (album && pageParam === 'cover') ? 'cover' : Math.min(album?.poems.length ?? 1, Math.max(1, Number.parseInt(pageParam, 10) || 1));
+    verseObserver.disconnect();
+    pageTurns = {};
+
+    site.className = `shell ${design}`;
+    switcher.hidden = masthead.hidden = design === 'book';
+    brand.href = route(design, 'contents', 1);
+    designNav.innerHTML = Object.entries(designs).map(([key, name]) => `
+      <a href="${route(key, albumKey, page)}" ${key === design ? 'aria-current="true"' : ''}>${name}</a>`).join('');
+    albumNav.innerHTML = Object.entries(albums).map(([key, item]) => `
+      <a href="${route(design, key, 'cover')}" ${key === albumKey ? 'aria-current="true"' : ''}>${item.name}</a>`).join('');
+
+    if (design === 'book') {
+      renderBook(albumKey, album, page);
+    } else if (albumKey === 'home') {
+      pageTurns.next = route(design, 'contents', 1);
+      renderCover('Хокку', '#713b32', 'Открыть книгу');
+    } else if (!album) {
+      const links = `<ul>${Object.entries(albums).map(([key, item]) => `
+        <li><a href="${route(design, key, 'cover')}">${item.name}</a></li>`).join('')}</ul>`;
+      reader.innerHTML = `<section class="overview"><h1>Оглавление</h1>${links}</section>`;
+    } else if (page === 'cover') {
+      pageTurns = { prev: route(design, 'contents', 1), next: route(design, albumKey, 1) };
+      renderCover(album.name, album.color, 'Читать альбом', '<p class="section-label">Хокку</p>');
+    } else if (design === 'journal') {
+      reader.innerHTML = `<h1 class="album-title">${album.name}</h1>${album.poems.map(id => `
+        <article class="entry"><div>${poemMarkup(id)}</div>${placeholder()}</article>`).join('')}`;
+    } else {
+      pageTurns.prev = route(design, albumKey, page === 1 ? 'cover' : page - 1);
+      if (page < album.poems.length) pageTurns.next = route(design, albumKey, page + 1);
+      reader.innerHTML = `<article class="spread">
+        <div class="text-page"><h1 class="section-label">${album.name}</h1>${poemMarkup(album.poems[page - 1])}</div>
+        <div class="art-page">${placeholder()}</div>
+      </article>${paging('Назад', 'Далее', `<p aria-label="Хокку ${page} из ${album.poems.length}">${page} / ${album.poems.length}</p>`)}`;
+    }
+
+    document.title = albumKey === 'home' ? `Хокку · ${designs[design]}` : `${album?.name ?? 'Оглавление'} · Хокку · ${designs[design]}`;
+    if (focusReader) {
+      reader.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function renderBook(albumKey, album, page) {
+    const index = bookPages.indexOf(route('book', albumKey, page));
+    pageTurns = { prev: bookPages[index - 1], next: bookPages[index + 1], start: index > 0 ? bookPages[0] : undefined };
+    let content;
+    if (albumKey === 'home') {
+      content = '<section class="cover"><h1>Хокку</h1></section>';
+    } else if (albumKey === 'contents') {
+      const links = Object.entries(albums).map(([key, item]) => `
+        <li><a href="${route('book', key, 'cover')}">${item.name}</a></li>`).join('');
+      content = `<section class="overview spread"><div class="text-page"><h1 class="spread-title">Оглавление</h1></div>
+        <div class="art-page"><ul>${links}</ul></div></section>`;
+    } else {
+      const isAlbumTitle = page === 'cover';
+      const title = `<h1 class="${isAlbumTitle ? 'spread-title' : 'section-label'}">${album.name}</h1>`;
+      const verse = isAlbumTitle ? '' : poemMarkup(album.poems[page - 1], true);
+      content = `<article class="spread"><div class="text-page${isAlbumTitle ? ' album-title-page' : ''}">${title}${verse}</div>
+        <div class="art-page">${placeholder()}</div></article>`;
+    }
+
+    reader.innerHTML = `${content}<div class="book-controls">
+      <nav class="paging" aria-label="Листание">
+        <button type="button" data-turn="prev" aria-label="Предыдущая страница" ${pageTurns.prev ? '' : 'disabled'}>←</button>
+        <p aria-label="Страница ${index + 1} из ${bookPages.length}">${index + 1} / ${bookPages.length}</p>
+        <button type="button" data-turn="next" aria-label="Следующая страница" ${pageTurns.next ? '' : 'disabled'}>→</button>
+      </nav>
+      <button type="button" class="book-start" data-turn="start" aria-keyshortcuts="ArrowUp" ${pageTurns.start ? '' : 'hidden'}>В начало&nbsp;<span aria-hidden="true">↑</span></button>
+    </div>`;
+    const verse = reader.querySelector('.verse');
+    if (verse) {
+      verseObserver.observe(verse);
+      fitVerse();
+    }
+  }
+
+  function renderCover(title, color, label, caption = '') {
+    reader.innerHTML = `<section class="cover" style="background-color: ${color}; color: #fff6e5">
+      ${caption}<h1>${title}</h1><button type="button" id="open-album" data-turn="next">${label}</button></section>`;
+  }
+
+  function paging(previousLabel, nextLabel, counter = '<span></span>') {
+    return `<nav class="paging" aria-label="Листание">
+      <button type="button" id="prev" data-turn="prev">${previousLabel}</button>${counter}
+      <button type="button" id="next" data-turn="next" ${pageTurns.next ? '' : 'disabled'}>${nextLabel}</button>
+    </nav>`;
+  }
+
+  function poemMarkup(id, separateLines = false) {
+    const [verse, note] = poems[id];
+    const text = separateLines ? verse.split('\n').map(line => `<span class="verse-line">${line}</span>`).join('\n') : verse;
+    return `<blockquote class="verse">${text}</blockquote>${note ? `<p class="meta">${note}</p>` : ''}`;
+  }
+
+  function fitVerse() {
+    const verse = reader.querySelector('.book .verse');
+    if (!verse) return;
+    verse.style.removeProperty('font-size');
+    const longestLine = Math.max(...Array.from(verse.children, line => line.getBoundingClientRect().width));
+    if (longestLine > verse.clientWidth) {
+      const defaultSize = Number.parseFloat(getComputedStyle(verse).fontSize);
+      const minSize = .875 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+      verse.style.fontSize = `${Math.max(minSize, defaultSize * (verse.clientWidth - 1) / longestLine)}px`;
+    }
+    if (verse.scrollWidth > verse.clientWidth) verse.tabIndex = 0;
+    else verse.removeAttribute('tabindex');
+  }
+
+  function placeholder() {
+    return '<div class="placeholder"><span class="seal" lang="ja" aria-hidden="true">俳</span><p>Место для иллюстрации</p></div>';
+  }
+
+  window.addEventListener('hashchange', () => render(true));
+  reader.addEventListener('click', event => {
+    const button = event.target.closest('button[data-turn]');
+    if (button && pageTurns[button.dataset.turn]) location.hash = pageTurns[button.dataset.turn];
+  });
+  window.addEventListener('keydown', event => {
+    if (!site.classList.contains('book') || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const direction = { ArrowLeft: 'prev', ArrowRight: 'next', ArrowUp: 'start' }[event.key];
+    if (!direction || !pageTurns[direction]) return;
+    const verse = reader.querySelector('.verse');
+    if (direction !== 'start' && verse && verse.contains(document.activeElement) && verse.scrollWidth > verse.clientWidth) return;
+    event.preventDefault();
+    location.hash = pageTurns[direction];
+  });
+  render();
+  document.fonts.ready.then(fitVerse);
+</script>
+</html>
