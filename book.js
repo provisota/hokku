@@ -62,6 +62,7 @@
     const { title, kind, poem, imageFile } = pages.get(route);
     const index = routes.indexOf(route);
     verseObserver.disconnect();
+    page.classList.remove('contents-pointer-active');
 
     if (kind === 'cover') {
       const coverPage = cover.cloneNode(true);
@@ -181,11 +182,23 @@
     const button = event.target.closest('button[data-turn]');
     if (button) turn(button.dataset.turn);
   });
+  page.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'touch' && event.target.closest('.overview')) {
+      page.classList.add('contents-pointer-active');
+    }
+  });
   window.addEventListener('keydown', event => {
-    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (location.hash === '#contents' && event.key === 'Tab') {
+      page.classList.remove('contents-pointer-active');
+    }
+    if (event.shiftKey) return;
     if (location.hash === '#contents') {
       handleContentsKey(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        page.classList.remove('contents-pointer-active');
+        return;
+      }
     }
     const direction = { ArrowLeft: 'prev', ArrowRight: 'next', ArrowUp: 'start' }[event.key];
     if (!direction) return;

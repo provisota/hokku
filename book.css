@@ -263,8 +263,8 @@ h1, p, blockquote {
   font-size: clamp(1.35rem, 2.6vw, 2rem);
 }
 
-.overview li a:hover,
-.overview li a:focus {
+.contents-pointer-active .overview li a:hover,
+#page:not(.contents-pointer-active) .overview li a:focus {
   color: #994f37;
   text-decoration: underline;
 }
