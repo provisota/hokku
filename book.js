@@ -1,13 +1,13 @@
 (() => {
   const pages = new Map([
-    ['#cover', { title: 'Хокку', kind: 'cover', imageFile: 'cover.png' }],
+    ['#cover', { title: 'Хокку', kind: 'cover', imageFile: 'cover.webp' }],
     ['#contents', { title: 'Оглавление', kind: 'contents' }],
   ]);
   for (const [key, album] of Object.entries(albums)) {
-    pages.set(`#${key}`, { title: album.name, kind: 'album', imageFile: `album-${key}.png` });
+    pages.set(`#${key}`, { title: album.name, kind: 'album', imageFile: `album-${key}.webp` });
     for (const id of album.poems) {
       const number = id.slice('hokku-'.length);
-      pages.set(`#${key}/${id}`, { title: album.name, kind: 'poem', poem: poems[id], imageFile: `image-${number}.png` });
+      pages.set(`#${key}/${id}`, { title: album.name, kind: 'poem', poem: poems[id], imageFile: `image-${number}.webp` });
     }
   }
   const routes = [...pages.keys()];
@@ -128,7 +128,9 @@
       if (fallback.isConnected) fallback.replaceWith(image);
     }, { once: true });
     image.addEventListener('error', () => {
-      fallback.hidden = false;
+      if (!fallback.isConnected) return;
+      if (file === 'placeholder.webp') fallback.hidden = false;
+      else loadIllustration(fallback, 'placeholder.webp', 'Место для иллюстрации');
     }, { once: true });
     image.src = `images/${file}`;
   }
