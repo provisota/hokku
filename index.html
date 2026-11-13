@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Хокку</title>
+  <link rel="stylesheet" href="book.css">
+  <script defer src="catalog.js"></script>
+  <script defer src="book.js"></script>
+</head>
+<body>
+  <main class="reader">
+    <div id="page" tabindex="-1">
+      <section class="cover"><h1 hidden>Хокку</h1></section>
+    </div>
+    <div class="book-controls" hidden>
+      <nav class="paging" aria-label="Листание">
+        <button type="button" data-turn="prev" aria-label="Предыдущая страница" aria-keyshortcuts="ArrowLeft">←</button>
+        <p role="status"></p>
+        <button type="button" data-turn="next" aria-label="Следующая страница" aria-keyshortcuts="ArrowRight">→</button>
+      </nav>
+      <button type="button" class="book-start" data-turn="start" aria-keyshortcuts="ArrowUp">Оглавление <span aria-hidden="true">↑</span></button>
+    </div>
+    <noscript><p>Для листания книги «Хокку» включите JavaScript.</p></noscript>
+  </main>
+
+  <template id="spread-template">
+    <article class="spread">
+      <div class="text-page"><h1></h1></div>
+      <div class="art-page"></div>
+    </article>
+  </template>
+  <template id="placeholder-template">
+    <div class="placeholder" hidden>
+      <span class="seal" lang="ja" aria-hidden="true">俳</span>
+      <p>Место для иллюстрации</p>
+    </div>
+  </template>
+</body>
+</html>
