@@ -201,10 +201,10 @@
   page.addEventListener('pointerdown', event => {
     if (event.pointerType !== 'touch') return;
     pendingTap = undefined;
-    if (!event.isPrimary || mobileHeader.offsetWidth === 0) return;
-    const spread = event.target.closest('.spread:not(.overview)');
-    if (!spread || event.target.closest('a, button, .verse[tabindex]')) return;
-    pendingTap = { id: event.pointerId, x: event.clientX, y: event.clientY, spread };
+    if (!event.isPrimary || getComputedStyle(page).getPropertyValue('--tap-to-turn') !== 'enabled') return;
+    const card = event.target.closest('.cover, .spread');
+    if (!card || event.target.closest('a, button, .verse[tabindex]')) return;
+    pendingTap = { id: event.pointerId, x: event.clientX, y: event.clientY, card };
   });
   page.addEventListener('pointermove', event => {
     if (pendingTap?.id === event.pointerId &&
@@ -217,11 +217,11 @@
   });
   page.addEventListener('pointerup', event => {
     if (pendingTap?.id !== event.pointerId) return;
-    const { x, y, spread } = pendingTap;
+    const { x, y, card } = pendingTap;
     pendingTap = undefined;
-    if (!spread.isConnected || Math.hypot(event.clientX - x, event.clientY - y) > 10 ||
+    if (!card.isConnected || Math.hypot(event.clientX - x, event.clientY - y) > 10 ||
         !window.getSelection().isCollapsed) return;
-    const { left, width } = spread.getBoundingClientRect();
+    const { left, width } = card.getBoundingClientRect();
     turn(x < left + width / 2 ? 'prev' : 'next');
   });
 

@@ -327,6 +327,10 @@ h1, p, blockquote {
 }
 
 @media (max-width: 700px), (max-width: 1024px) and (max-height: 600px) and (orientation: landscape) and (pointer: coarse) {
+  #page {
+    --tap-to-turn: enabled;
+  }
+
   body {
     --book-height: clamp(300px, calc(100svh - 118px), 660px);
     padding: .5rem max(3vw, .65rem);
@@ -343,6 +347,15 @@ h1, p, blockquote {
 
   .mobile-brand, .mobile-heading {
     font: 400 1.35rem/1.1 Neucha, 'Segoe Print', cursive;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    min-width: 44px;
+    min-height: 44px;
+    text-decoration: none;
   }
 
   .mobile-heading {
@@ -406,8 +419,27 @@ h1, p, blockquote {
     background: none;
   }
 
-  .spread .section-label, .spread .spread-title, .overview .text-page, .book-start {
+  .spread .section-label, .overview .text-page, .book-start {
     display: none;
+  }
+
+  .album-title-page .spread-title {
+    font-size: clamp(1.65rem, 5vw, 3.25rem);
+  }
+
+  @media (orientation: portrait) {
+    .spread:has(.album-title-page) {
+      --postcard-shade: linear-gradient(transparent 18%, #241b1699 48%, #241b16b3 60%, #241b16);
+    }
+
+    .album-title-page {
+      align-self: center;
+    }
+
+    .album-title-page .spread-title {
+      font-size: clamp(2.5rem, 11vw, 3.75rem);
+      text-shadow: 0 2px 8px #241b16;
+    }
   }
 
   .verse {
@@ -490,11 +522,6 @@ h1, p, blockquote {
 
     .spread .album-title-page {
       padding-inline: 1rem;
-    }
-
-    .spread .album-title-page .spread-title {
-      display: block;
-      font-size: clamp(1.65rem, 5vw, 3.25rem);
     }
 
     .verse {
