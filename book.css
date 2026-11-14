@@ -331,6 +331,17 @@ h1, p, blockquote {
     --touch-to-turn: enabled;
   }
 
+  #page.page-sliding {
+    position: relative;
+    clip-path: inset(-2rem 0);
+  }
+
+  .page-sliding > .page-preview {
+    position: absolute;
+    inset: 0 0 auto;
+    pointer-events: none;
+  }
+
   .cover, .spread, .verse:not([tabindex]) {
     touch-action: pan-y pinch-zoom;
   }
