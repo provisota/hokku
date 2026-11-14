@@ -13,6 +13,9 @@
   const routes = [...pages.keys()];
 
   const page = document.querySelector('#page');
+  const mobileHeader = document.querySelector('.mobile-header');
+  const mobileHeading = mobileHeader.querySelector('.mobile-heading');
+  const mobileStart = mobileHeader.querySelector('[data-turn="start"]');
   const controls = document.querySelector('.book-controls');
   const counter = controls.querySelector('.paging p');
   const previous = controls.querySelector('[data-turn="prev"]');
@@ -63,6 +66,9 @@
     const index = routes.indexOf(route);
     verseObserver.disconnect();
     page.classList.remove('contents-pointer-active');
+    mobileHeader.hidden = kind === 'cover';
+    mobileHeading.textContent = title;
+    mobileStart.hidden = kind === 'contents';
 
     if (kind === 'cover') {
       const coverPage = cover.cloneNode(true);
@@ -75,20 +81,27 @@
       const artPage = spread.querySelector('.art-page');
       heading.textContent = title;
       heading.className = poem ? 'section-label' : 'spread-title';
+      const fallback = placeholderTemplate.content.firstElementChild.cloneNode(true);
+      let illustration = imageFile;
+      let alt = poem ? 'Иллюстрация к хокку' : `Иллюстрация к альбому «${title}»`;
 
       if (kind === 'contents') {
         spread.firstElementChild.classList.add('overview');
         artPage.append(contents.cloneNode(true));
+        const contentsArt = document.createElement('div');
+        contentsArt.className = 'contents-art';
+        contentsArt.setAttribute('aria-hidden', 'true');
+        contentsArt.append(fallback);
+        spread.firstElementChild.append(contentsArt);
+        illustration = 'cover.webp';
+        alt = '';
       } else {
-        artPage.append(placeholderTemplate.content.cloneNode(true));
+        artPage.append(fallback);
         if (poem) textPage.append(createPoem(poem));
         else textPage.classList.add('album-title-page');
       }
       page.replaceChildren(spread);
-      if (imageFile) {
-        const alt = poem ? 'Иллюстрация к хокку' : `Иллюстрация к альбому «${title}»`;
-        loadIllustration(artPage.firstElementChild, imageFile, alt);
-      }
+      loadIllustration(fallback, illustration, alt);
     }
 
     const verse = page.querySelector('.verse');
@@ -182,6 +195,36 @@
     const button = event.target.closest('button[data-turn]');
     if (button) turn(button.dataset.turn);
   });
+  mobileStart.addEventListener('click', () => turn('start'));
+
+  let pendingTap;
+  page.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'touch') return;
+    pendingTap = undefined;
+    if (!event.isPrimary || mobileHeader.offsetWidth === 0) return;
+    const spread = event.target.closest('.spread:not(.overview)');
+    if (!spread || event.target.closest('a, button, .verse[tabindex]')) return;
+    pendingTap = { id: event.pointerId, x: event.clientX, y: event.clientY, spread };
+  });
+  page.addEventListener('pointermove', event => {
+    if (pendingTap?.id === event.pointerId &&
+        Math.hypot(event.clientX - pendingTap.x, event.clientY - pendingTap.y) > 10) {
+      pendingTap = undefined;
+    }
+  });
+  page.addEventListener('pointercancel', event => {
+    if (pendingTap?.id === event.pointerId) pendingTap = undefined;
+  });
+  page.addEventListener('pointerup', event => {
+    if (pendingTap?.id !== event.pointerId) return;
+    const { x, y, spread } = pendingTap;
+    pendingTap = undefined;
+    if (!spread.isConnected || Math.hypot(event.clientX - x, event.clientY - y) > 10 ||
+        !window.getSelection().isCollapsed) return;
+    const { left, width } = spread.getBoundingClientRect();
+    turn(x < left + width / 2 ? 'prev' : 'next');
+  });
+
   page.addEventListener('pointermove', event => {
     if (event.pointerType !== 'touch' && event.target.closest('.overview')) {
       page.classList.add('contents-pointer-active');

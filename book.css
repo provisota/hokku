@@ -322,61 +322,193 @@ h1, p, blockquote {
   outline-offset: -2px;
 }
 
-@media (max-width: 700px) {
+.mobile-header, .contents-art {
+  display: none;
+}
+
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 600px) and (orientation: landscape) and (pointer: coarse) {
+  body {
+    --book-height: clamp(300px, calc(100svh - 118px), 660px);
+    padding: .5rem max(3vw, .65rem);
+  }
+
+  .mobile-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: .3rem;
+    align-items: center;
+    min-height: 48px;
+    padding-inline: .25rem;
+  }
+
+  .mobile-brand, .mobile-heading {
+    font: 400 1.35rem/1.1 Neucha, 'Segoe Print', cursive;
+  }
+
+  .mobile-heading {
+    text-align: center;
+  }
+
+  .mobile-header button {
+    justify-self: end;
+    min-height: 44px;
+    padding-inline: .2rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: .75rem;
+  }
+
   .spread {
-    grid-template-columns: 1fr;
+    --postcard-background: #241b16;
+    --postcard-shade: linear-gradient(transparent 28%, #241b1666 52%, #241b16f5 85%, #241b16);
+    position: relative;
+    isolation: isolate;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: end;
+    color: #f4ead7;
+    background: var(--postcard-background);
   }
 
-  .text-page {
-    padding-top: 3.75rem;
-    padding-bottom: 1.5rem;
-    background: linear-gradient(0deg, #d7c6aa, transparent 15%);
+  .spread::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--postcard-shade);
+    content: '';
+    pointer-events: none;
   }
 
-  .album-title-page {
-    padding-block: 1.5rem;
+  .spread:not(.overview) > .art-page, .contents-art {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    display: grid;
+    padding: 0;
+    background: none;
   }
 
-  .section-label {
-    top: 1.5rem;
+  .spread .illustration {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
   }
 
-  .art-page {
-    padding: 1.25rem;
-    background: linear-gradient(#c4ad8b, transparent 20%);
+  .spread .placeholder {
+    min-height: 0;
+    align-content: start;
+    padding: 2rem 1rem;
   }
 
-  .placeholder, .art-page .illustration {
-    min-height: 145px;
+  .spread .text-page, .overview .art-page {
+    padding: 1.5rem clamp(1rem, 5vw, 2rem);
+    background: none;
   }
 
-  .overview .text-page {
-    padding: 2rem 1.5rem;
+  .spread .section-label, .spread .spread-title, .overview .text-page, .book-start {
+    display: none;
   }
 
-  .overview .art-page {
-    padding: .75rem 1.5rem 1rem;
+  .verse {
+    font-size: clamp(1.55rem, 6vw, 2.25rem);
+    line-height: 1.22;
+  }
+
+  .meta {
+    margin-top: .65rem;
+  }
+
+  .overview {
+    --postcard-shade: linear-gradient(transparent 5%, #241b16dd 42%, #241b16);
+  }
+
+  .contents-art .illustration {
+    object-position: center 28%;
+  }
+
+  .overview ul, .overview li a {
+    border-color: #e6d3bb55;
   }
 
   .overview li a {
-    padding-block: .35rem;
-  }
-}
-
-@media (max-width: 420px) {
-  .paging {
-    gap: .25rem;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: .25rem;
+    font-size: 1.35rem;
   }
 
-  .book-start {
-    padding-inline: .2rem;
-    font-size: .78rem;
+  .contents-pointer-active .overview li a:hover,
+  #page:not(.contents-pointer-active) .overview li a:focus {
+    color: #ffe1ae;
   }
-}
 
-@media (max-width: 350px) {
-  .book-start {
-    grid-column: 1 / -1;
-    justify-self: center;
+  .book-controls {
+    margin-top: .5rem;
+  }
+
+  @media (orientation: landscape) {
+    body {
+      --book-height: clamp(172px, calc(100svh - 112px), 490px);
+    }
+
+    .cover {
+      width: min(100%, calc(var(--book-height) * .75));
+      padding: 1rem;
+    }
+
+    .cover .illustration {
+      object-fit: contain;
+    }
+
+    .cover::before, .cover::after {
+      display: none;
+    }
+
+    .spread {
+      --postcard-art-width: 53%;
+      --postcard-shade: linear-gradient(270deg, transparent 20%, #241b16a6 43%, #241b16 53%);
+      align-items: center;
+    }
+
+    .spread:not(.overview) > .art-page, .contents-art {
+      left: auto;
+      width: var(--postcard-art-width);
+    }
+
+    .spread .text-page {
+      margin-right: 48%;
+      padding-block: .65rem;
+      padding-right: 0;
+    }
+
+    .overview .art-page {
+      margin-right: var(--postcard-art-width);
+      padding: .65rem 1rem;
+    }
+
+    .spread .album-title-page {
+      padding-inline: 1rem;
+    }
+
+    .spread .album-title-page .spread-title {
+      display: block;
+      font-size: clamp(1.65rem, 5vw, 3.25rem);
+    }
+
+    .verse {
+      font-size: clamp(1.15rem, 3.5vw, 2.25rem);
+    }
+
+    .overview ul {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: .5rem;
+    }
+
+    .overview li a {
+      font-size: clamp(1rem, 3vw, 1.35rem);
+    }
   }
 }
