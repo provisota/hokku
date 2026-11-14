@@ -427,7 +427,16 @@ h1, p, blockquote {
     font-size: clamp(1.65rem, 5vw, 3.25rem);
   }
 
+  .verse {
+    font-size: clamp(1.55rem, 6vw, 2.25rem);
+    line-height: 1.22;
+  }
+
   @media (orientation: portrait) {
+    .verse {
+      font-size: clamp(2rem, 8.5vw, 2.75rem);
+    }
+
     .spread:has(.album-title-page) {
       --postcard-shade: linear-gradient(transparent 18%, #241b1699 48%, #241b16b3 60%, #241b16);
     }
@@ -440,11 +449,6 @@ h1, p, blockquote {
       font-size: clamp(2.5rem, 11vw, 3.75rem);
       text-shadow: 0 2px 8px #241b16;
     }
-  }
-
-  .verse {
-    font-size: clamp(1.55rem, 6vw, 2.25rem);
-    line-height: 1.22;
   }
 
   .meta {
