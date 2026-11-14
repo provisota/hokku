@@ -328,7 +328,11 @@ h1, p, blockquote {
 
 @media (max-width: 700px), (max-width: 1024px) and (max-height: 600px) and (orientation: landscape) and (pointer: coarse) {
   #page {
-    --tap-to-turn: enabled;
+    --touch-to-turn: enabled;
+  }
+
+  .cover, .spread, .verse:not([tabindex]) {
+    touch-action: pan-y pinch-zoom;
   }
 
   body {

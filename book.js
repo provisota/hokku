@@ -199,32 +199,37 @@
   });
   mobileStart.addEventListener('click', () => turn('start'));
 
-  let pendingTap;
+  let touchGesture;
   page.addEventListener('pointerdown', event => {
     if (event.pointerType !== 'touch') return;
-    pendingTap = undefined;
-    if (!event.isPrimary || getComputedStyle(page).getPropertyValue('--tap-to-turn') !== 'enabled') return;
+    touchGesture = undefined;
+    if (!event.isPrimary || getComputedStyle(page).getPropertyValue('--touch-to-turn') !== 'enabled') return;
     const card = event.target.closest('.cover, .spread');
     if (!card || event.target.closest('a, button, .verse[tabindex]')) return;
-    pendingTap = { id: event.pointerId, x: event.clientX, y: event.clientY, card };
+    touchGesture = { id: event.pointerId, x: event.clientX, y: event.clientY, card, moved: false };
   });
   page.addEventListener('pointermove', event => {
-    if (pendingTap?.id === event.pointerId &&
-        Math.hypot(event.clientX - pendingTap.x, event.clientY - pendingTap.y) > 10) {
-      pendingTap = undefined;
+    if (touchGesture?.id === event.pointerId &&
+        Math.hypot(event.clientX - touchGesture.x, event.clientY - touchGesture.y) > 10) {
+      touchGesture.moved = true;
     }
   });
   page.addEventListener('pointercancel', event => {
-    if (pendingTap?.id === event.pointerId) pendingTap = undefined;
+    if (touchGesture?.id === event.pointerId) touchGesture = undefined;
   });
   page.addEventListener('pointerup', event => {
-    if (pendingTap?.id !== event.pointerId) return;
-    const { x, y, card } = pendingTap;
-    pendingTap = undefined;
-    if (!card.isConnected || Math.hypot(event.clientX - x, event.clientY - y) > 10 ||
-        !window.getSelection().isCollapsed) return;
-    const { left, width } = card.getBoundingClientRect();
-    turn(x < left + width / 2 ? 'prev' : 'next');
+    if (touchGesture?.id !== event.pointerId) return;
+    const { x, y, card, moved } = touchGesture;
+    touchGesture = undefined;
+    if (!card.isConnected || !window.getSelection().isCollapsed) return;
+    const dx = event.clientX - x;
+    const dy = event.clientY - y;
+    if (Math.abs(dx) >= 48 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+      turn(dx < 0 ? 'next' : 'prev');
+    } else if (!moved && Math.hypot(dx, dy) <= 10) {
+      const { left, width } = card.getBoundingClientRect();
+      turn(x < left + width / 2 ? 'prev' : 'next');
+    }
   });
 
   page.addEventListener('pointermove', event => {
