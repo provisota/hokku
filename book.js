@@ -14,7 +14,7 @@
 
   const page = document.querySelector('#page');
   const mobileHeader = document.querySelector('.mobile-header');
-  const mobileHeading = mobileHeader.querySelector('.mobile-heading');
+  const mobileHeading = mobileHeader.querySelector('.mobile-heading a');
   const mobileStart = mobileHeader.querySelector('[data-turn="start"]');
   const controls = document.querySelector('.book-controls');
   const counter = controls.querySelector('.paging p');
@@ -68,6 +68,8 @@
     page.classList.remove('contents-pointer-active');
     mobileHeader.hidden = kind === 'cover';
     mobileHeading.textContent = title;
+    if (kind === 'album' || kind === 'poem') mobileHeading.href = '#contents';
+    else mobileHeading.removeAttribute('href');
     mobileStart.hidden = kind === 'contents';
 
     if (kind === 'cover') {

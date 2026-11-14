@@ -362,6 +362,13 @@ h1, p, blockquote {
     text-align: center;
   }
 
+  .mobile-heading a[href] {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
   .mobile-header button {
     justify-self: end;
     min-height: 44px;
